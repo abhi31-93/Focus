@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Focus</title>
+<meta name="theme-color" content="#0b0d1a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a personal app that pulls your attention to what matters
+   IDEA: a magnet; projects are pulled toward the top by time and recency
+   PICTURE: the field-lit hero card and the ranked list with pole-coloured bars
+   COLOUR and TYPE: deep field-navy, electric blue pole, magnet-red pole; Space Grotesk + Manrope
+   LAYOUT: one phone column, bottom tab bar, cards stacked */
+:root{color-scheme:dark;--bg:#0b0d1a;--card:#141830;--ink:#eef0ff;--mute:#959bc4;--line:#252a4d;--soft:#1d2244;--acc:#ff3b5c;--blue:#3d6bff;--accs:rgba(255,59,92,.15);--accink:#ff8ea2;--ok:#3d6bff;--hero:#1a1f45;--pole:linear-gradient(90deg,#3d6bff,#8a4dff 55%,#ff3b5c)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Manrope,system-ui,sans-serif;overflow-x:clip}
+.app{max-width:480px;margin:0 auto}
+main{padding:18px 16px 110px}
+h1{font:700 30px/1.05 'Space Grotesk',Manrope,sans-serif;margin:2px 0 6px;letter-spacing:-.02em;text-wrap:balance}
+h2{font-size:16px;margin:0 0 4px;font-weight:700}
+p{margin:6px 0}
+.sub{color:var(--mute);font-size:13px}
+.card{background:var(--card);border-radius:18px;padding:14px;margin-top:12px;border:1px solid var(--line)}
+.hero{background:radial-gradient(120% 90% at 0% 0%,rgba(61,107,255,.55),transparent 60%),radial-gradient(90% 90% at 100% 100%,rgba(255,59,92,.45),transparent 60%),var(--hero);color:#fff;border-color:rgba(255,255,255,.08)}
+.hero .sub{color:#c7ccf2}.hero .lbl{color:#9fb6ff}
+.lbl{font-size:13px;color:var(--mute);font-weight:600}
+.big{font-family:'Space Grotesk',Manrope,sans-serif;font-size:32px;font-weight:700;line-height:1.1;margin-top:2px;font-variant-numeric:tabular-nums}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.grid3 .card{padding:12px}.grid3 .big{font-size:24px}
+.bar{height:8px;background:var(--soft);border-radius:4px;overflow:hidden;margin-top:6px}
+.hero .bar{background:rgba(255,255,255,.12)}
+.bar i{display:block;height:100%;background:var(--pole);border-radius:4px}
+.it{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer;min-height:48px}
+.it:last-child{border:0}
+.rk{flex:none;width:28px;height:28px;border-radius:9px;background:var(--soft);color:#9fb6ff;display:grid;place-items:center;font-weight:800;font-size:13px}
+.nm{flex:1}.nm b{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nm small{color:var(--mute);font-size:13px}
+.scv{font-weight:800;color:var(--acc);font-variant-numeric:tabular-nums}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:6px;background:rgba(61,107,255,.18);color:#9fb6ff;font-weight:700;margin-left:4px;vertical-align:2px}
+.tag.st{background:var(--accs);color:var(--accink)}
+.warn{background:var(--accs);border-color:transparent;cursor:pointer}
+.click{cursor:pointer}
+.row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}.row:last-child{border:0}.row span{color:var(--mute)}.row b{white-space:nowrap;font-variant-numeric:tabular-nums}
+.tb{padding:6px 0}.tb .row{border:0;padding:0}
+.btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+button,.filebtn{font:inherit;font-weight:700;font-size:14px;border:0;border-radius:12px;min-height:44px;padding:0 14px;cursor:pointer;color:var(--ink)}
+.btns>*{flex:1}
+.k{background:var(--ok);color:#fff}.s{background:var(--soft)}.t{background:transparent;color:var(--accink);border:1px solid var(--accink)}.p{background:var(--pole);color:#fff}
+.link{background:none;color:var(--acc);padding:0 4px;min-height:36px}
+button:focus-visible,input:focus-visible,select:focus-visible,.filebtn:focus-within{outline:2px solid var(--acc);outline-offset:2px}
+nav{position:fixed;left:0;right:0;bottom:0;background:rgba(15,18,38,.92);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:2}
+nav>div{max-width:480px;margin:0 auto;display:flex}
+nav button{flex:1;background:none;border-radius:0;color:var(--mute);font-size:12px;padding:8px 0 10px;min-height:58px;position:relative;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button.on{color:#fff}nav button.on svg{stroke:url(#pg)}nav button.on::before{content:'';position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--pole)}
+nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dot{position:absolute;top:5px;left:calc(50% + 6px);background:var(--acc);color:#fff;border-radius:9px;font-size:10px;padding:1px 6px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:#2a3170;color:#fff;border-radius:12px;padding:12px 16px;font-size:14px;width:min(440px,calc(100% - 32px));z-index:3}
+input[type=text],select{width:100%;font:inherit;font-size:16px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-height:44px}
+input[type=range]{width:100%;accent-color:var(--acc);min-height:32px}
+input[type=file]{position:absolute;opacity:0;width:1px;height:1px}
+.filebtn{display:inline-flex;align-items:center;justify-content:center;background:var(--pole);color:#fff;position:relative}
+.filebtn.s{background:var(--soft);color:var(--ink)}
+.empty{text-align:center;padding:28px 8px;color:var(--mute)}
+.seg{display:flex;background:var(--soft);border-radius:12px;padding:3px;margin-top:12px}.seg button{flex:1;background:none;min-height:38px;font-size:13px;color:var(--mute)}.seg button.on{background:var(--blue);color:#fff}
+.conv{padding:10px 0;border-bottom:1px solid var(--line)}.conv:last-child{border:0}.conv b{display:block;font-size:14px;font-weight:600}.conv select{margin-top:6px}
+.rule{display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:6px;padding:10px 0;border-bottom:1px solid var(--line)}.rule input:nth-child(2){grid-column:1}.rule button{grid-row:1/3;grid-column:2;background:var(--soft);padding:0}
+.prog{font-size:14px;margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--soft)}
+.note{font-size:13px;color:var(--mute);margin-top:8px}
+ol{margin:6px 0;padding-left:20px;font-size:14px}ol li{margin:2px 0}
+code{font-size:13px;background:var(--soft);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.banner{font-size:13px;background:var(--accs);color:var(--accink);border-radius:10px;padding:8px 12px;margin-bottom:6px;font-weight:600}
+@media (prefers-reduced-motion:no-preference){.toast{animation:up .25s ease}@keyframes up{from{opacity:0;transform:translate(-50%,8px)}}}
+</style></head><body>
+<div class="app"><main id="m"><div class="empty">Loading your projects…</div></main></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="pg" x1="0" x2="1"><stop offset="0" stop-color="#3d6bff"/><stop offset="1" stop-color="#ff3b5c"/></linearGradient></defs></svg>
+<nav><div id="nav"></div></nav><div id="toast"></div>
+<script>
+{
+const DAY=864e5,MIN=6e4;
+const dayN=ms=>Math.floor((ms-new Date(ms).getTimezoneOffset()*MIN)/DAY);
+const today=dayN(Date.now());
+const fmtD=n=>new Date(n*DAY).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+const monthOf=n=>{const d=new Date(n*DAY);return d.getUTCFullYear()*12+d.getUTCMonth()};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hrs=m=>m<6&&m>0?'<0.1 h':(m/60).toFixed(1)+' h';
+const ago=n=>n<=0?'today':n===1?'yesterday':n+' days ago';
+const DEF_RULES=[
+ ['Bonbonniere','bonbonniere, bonbonnière, cloud kitchen'],
+ ['Artisanla','artisanla'],
+ ['Mazdana','mazdana'],
+ ['Hospitality consulting','byblos, trezième, trezieme, aqeeq, consulting'],
+ ['Pune B2B supply','b2b, wholesale'],
+ ['Growth plan','growth plan, growth strategy, weekly review'],
+ ['Wedding planning','wedding, venue'],
+ ['Chiller alarm','chiller, freezer, esp32, temperature alarm'],
+ ['Trading bot','zerodha, trading bot, kite connect, trading'],
+ ['YouTube channel','youtube, faceless'],
+ ['Venue notice','board notice, last order, operating hours']
+].map(([p,k])=>({p,k}));
+
+let convs={};
+const st={rules:DEF_RULES,dec:{},ov:{},win:14,th:14,mh:1,last:null,chunks:0};
+const view={tab:'home',sel:null,msg:'',filter:'all',sample:false,prog:'',allUns:false,wipe:false};
+let db=null,uid=null,store='none',chain=Promise.resolve(),tt=null;
+const $m=document.getElementById('m');
+
+/* ---------- reading files ---------- */
+async function unzip(file,want){
+ const buf=await file.arrayBuffer(),v=new DataView(buf),u8=new Uint8Array(buf),dec=new TextDecoder();
+ let e=-1;for(let i=buf.byteLength-22;i>=Math.max(0,buf.byteLength-70000);i--)if(v.getUint32(i,true)===0x06054b50){e=i;break}
+ if(e<0)throw Error('That zip file looks damaged. Try unzipping it and choosing conversations.json instead.');
+ const cnt=v.getUint16(e+10,true);let p=v.getUint32(e+16,true);const out=[];
+ for(let k=0;k<cnt;k++){
+  if(v.getUint32(p,true)!==0x02014b50)break;
+  const meth=v.getUint16(p+10,true),cs=v.getUint32(p+20,true),nl=v.getUint16(p+28,true),xl=v.getUint16(p+30,true),cl=v.getUint16(p+32,true),lo=v.getUint32(p+42,true);
+  const name=dec.decode(u8.subarray(p+46,p+46+nl));p+=46+nl+xl+cl;
+  if(!want(name))continue;
+  const ds=lo+30+v.getUint16(lo+26,true)+v.getUint16(lo+28,true),raw=u8.subarray(ds,ds+cs);
+  let data;
+  if(meth===0)data=raw;
+  else if(meth===8)data=new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+  else continue;
+  out.push([name,dec.decode(data)]);
+ }
+ return out;
+}
+function minutes(ts){
+ ts.sort((a,b)=>a-b);const m={};
+ ts.forEach((t,i)=>{const g=i?ts[i]-ts[i-1]:0;const add=i&&g<=30*MIN?g/MIN:3;const d=dayN(t);m[d]=(m[d]||0)+add});
+ return Object.entries(m).map(([d,x])=>[+d,Math.round(x*10)/10]);
+}
+async function parseClaude(files){
+ let conv=null,proj=[];
+ for(const f of files){
+  if(/\.zip$/i.test(f.name)){
+   for(const [n,txt] of await unzip(f,n=>/(^|\/)(conversations|projects)\.json$/i.test(n))){if(/conversations\.json$/i.test(n))conv=JSON.parse(txt);else proj=JSON.parse(txt)}
+  }else if(/projects\.json$/i.test(f.name))proj=JSON.parse(await f.text());
+  else conv=JSON.parse(await f.text());
+ }
+ if(!Array.isArray(conv))throw Error('No conversations.json found. Choose the .zip from the Claude export email.');
+ const pm={};(Array.isArray(proj)?proj:[]).forEach(p=>{if(p&&p.uuid)pm[p.uuid]=p.name});
+ let n=0;
+ for(const c of conv){
+  const ms=c.chat_messages||[];const ts=ms.map(m=>Date.parse(m.created_at)).filter(x=>x>0);
+  if(!ts.length){const t=Date.parse(c.created_at);if(t>0)ts.push(t);else continue}
+  const fu=ms.find(m=>m.sender==='human');
+  const txt=fu?(fu.text||(fu.content||[]).map(x=>x.text||'').join(' ')):'';
+  const pid=c.project_uuid||(c.project&&c.project.uuid);
+  convs['c:'+c.uuid]={i:'c:'+c.uuid,s:'claude',t:String(c.name||'Untitled chat').slice(0,90),h:(c.project&&c.project.name)||pm[pid]||'',x:String(txt).slice(0,300),d:minutes(ts)};n++;
+ }
+ return n;
+}
+async function parseCodex(files){
+ const list=[];let n=0;
+ for(const f of files){
+  if(/\.zip$/i.test(f.name)){for(const [nm,txt] of await unzip(f,x=>/\.jsonl$/i.test(x)))list.push([nm,txt,0])}
+  else if(/\.jsonl?$/i.test(f.name))list.push([f.webkitRelativePath||f.name,await f.text(),f.lastModified||0]);
+ }
+ if(!list.length)throw Error('No Codex session files (.jsonl) found in what you chose.');
+ for(const [nm,txt,lm] of list){
+  const ts=[];let cwd='',id='',first='';
+  for(const line of txt.split('\n')){
+   if(!line.trim())continue;let o;try{o=JSON.parse(line)}catch(e){continue}
+   const p=o.payload||o;const t=Date.parse(o.timestamp||p.timestamp||'');if(t>0)ts.push(t);
+   if(!cwd&&(p.cwd||o.cwd))cwd=p.cwd||o.cwd;
+   if(!id&&p.id&&(o.type==='session_meta'||!o.type))id=p.id;
+   if(!first){let u='';if(p.type==='message'&&p.role==='user')u=(p.content||[]).map(x=>x.text||'').join(' ');else if(p.type==='user_message')u=p.message||'';u=String(u).trim();if(u&&u[0]!=='<')first=u}
+  }
+  if(ts.length<2&&lm)ts.push(lm);
+  if(!ts.length)continue;
+  const folder=cwd?String(cwd).split(/[\\/]/).filter(Boolean).pop():'';
+  const key='x:'+(id||nm);
+  convs[key]={i:key,s:'codex',t:(first||'Codex session'+(folder?' in '+folder:'')).slice(0,90),h:folder,x:(first.slice(0,280)+' '+cwd).trim(),d:minutes(ts)};n++;
+ }
+ return n;
+}
+
+/* ---------- working out projects ---------- */
+const kws=r=>String(r.k||'').split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
+function projOf(c){
+ if(st.ov[c.i])return st.ov[c.i];
+ const txt=(c.t+' '+c.x+' '+c.h).toLowerCase();let best=null,bn=0;
+ for(const r of st.rules){let n=0;for(const k of kws(r))if(txt.includes(k))n++;if(n>bn&&r.p){bn=n;best=r.p}}
+ return best||c.h||'Unsorted';
+}
+function compute(){
+ const P={};
+ for(const c of Object.values(convs)){
+  const name=projOf(c);const o=P[name]||(P[name]={n:name,win:0,tot:0,first:1e9,last:-1e9,cl:0,cx:0,list:[]});
+  for(const [d,m] of c.d){o.tot+=m;if(d>today-st.win)o.win+=m;if(d<o.first)o.first=d;if(d>o.last)o.last=d}
+  c.s==='codex'?o.cx++:o.cl++;o.list.push(c);
+ }
+ const uns=P.Unsorted;delete P.Unsorted;
+ const arr=Object.values(P);
+ arr.forEach(o=>{o.dec=st.dec[o.n]||{};o.idle=today-o.last});
+ const live=arr.filter(o=>!o.dec.trash);
+ const mx=Math.max(1,...live.map(o=>o.win));
+ arr.forEach(o=>{
+  o.pt=Math.round(60*o.win/mx);o.pr=Math.round(40*Math.max(0,1-o.idle/30));o.score=o.pt+o.pr+(o.dec.pin?15:0);
+  const ref=Math.max(o.last,o.dec.kept||-1e9);
+  o.stale=!o.dec.trash&&!o.dec.pin&&(today-ref)>=st.th&&o.win/60<st.mh&&!(o.dec.snooze>today);
+ });
+ live.sort((a,b)=>b.score-a.score||b.win-a.win);
+ return {all:arr,live,uns:uns?uns.list:[],trash:arr.filter(o=>o.dec.trash)};
+}
+
+/* ---------- saving ---------- */
+const clone=x=>JSON.parse(JSON.stringify(x));
+const q=fn=>(chain=chain.then(fn).catch(e=>{toast(e&&e.code==='quota_exceeded'?'Storage is full. Delete old data in Data.':'Could not save just now. Your last change may not be kept.')}));
+function stateDoc(){return clone({rules:st.rules,dec:st.dec,ov:st.ov,win:st.win,th:st.th,mh:st.mh,last:st.last,chunks:st.chunks})}
+function saveState(){
+ if(view.sample)return;
+ if(store==='cloud')return q(()=>db.doc(`data/users/${uid}/state`).set(stateDoc()));
+ if(store==='local')try{localStorage.setItem('focus-state',JSON.stringify(stateDoc()))}catch(e){toast('Could not save on this device.')}
+}
+async function saveAll(){
+ if(store==='cloud'){
+  const all=Object.values(convs),out=[];let cur=[],size=0;
+  for(const c of all){const s=JSON.stringify(c).length;if(size+s>200000&&cur.length){out.push(cur);cur=[];size=0}cur.push(c);size+=s}
+  if(cur.length)out.push(cur);
+  const old=st.chunks||0;
+  await chain;
+  for(let i=0;i<out.length;i++){view.prog=`Saving part ${i+1} of ${out.length}…`;render();await db.doc(`data/users/${uid}/c${i}`).set({list:out[i]})}
+  for(let i=out.length;i<old;i++)await db.doc(`data/users/${uid}/c${i}`).delete();
+  st.chunks=out.length;await db.doc(`data/users/${uid}/state`).set(stateDoc());
+ }else if(store==='local'){
+  localStorage.setItem('focus-convs',JSON.stringify(convs));localStorage.setItem('focus-state',JSON.stringify(stateDoc()));
+ }
+}
+async function load(){
+ try{
+  if(store==='cloud'){
+   const s=await db.doc(`data/users/${uid}/state`).get();
+   if(s.exists){Object.assign(st,clone(s.data()));
+    for(let i=0;i<(st.chunks||0);i++){const c=await db.doc(`data/users/${uid}/c${i}`).get();if(c.exists)(c.data().list||[]).forEach(x=>{convs[x.i]=clone(x)})}}
+  }else if(store==='local'){
+   const s=JSON.parse(localStorage.getItem('focus-state')||'null');if(s)Object.assign(st,s);
+   const c=JSON.parse(localStorage.getItem('focus-convs')||'null');if(c)convs=c;
+  }
+ }catch(e){toast('Could not load your saved data.')}
+}
+async function init(){
+ try{
+  if(window.claude&&claude.use){
+   const timeout=new Promise(r=>setTimeout(()=>r([null,null]),10000));
+   const [d,u]=await Promise.race([Promise.all([claude.use('db'),claude.use('user')]),timeout]);
+   if(d&&u){const id=await u.id();if(id){db=d;uid=id;store='cloud'}}
+  }
+ }catch(e){}
+ if(store!=='cloud'){try{localStorage.setItem('focus-t','1');store='local'}catch(e){store='none'}}
+ await load();render();
+}
+
+/* ---------- sample data ---------- */
+function loadSample(){
+ convs={};
+ const S=[['Bonbonniere menu and pricing',390,1,40],['YouTube channel script ideas',240,1,1],['Wedding venue shortlist',190,6,6],['Mazdana bar menu costing',125,11,40],['Trading bot backtest','95',14,14,'codex'],['Chiller alarm ESP32 wiring',72,14,14,'codex'],['Growth plan weekly review',48,25,25],['Artisanla croissant yield',18,39,40],['Byblos consulting staffing',0,39,40],['B2B wholesale price list',0,39,40],['Board notice last order times',0,39,40]];
+ S.forEach(([t,m,idle,start,src],i)=>{
+  const d=[[today-idle,+m*0.6||20]];if(+m)d.push([today-Math.min(idle+4,start),+m*0.4]);if(start>idle+4)d.push([today-start,30]);
+  convs['s'+i]={i:'s'+i,s:src||'claude',t,h:'',x:'',d};
+ });
+ convs.su={i:'su',s:'claude',t:'Quick question about invoices',h:'',x:'',d:[[today-3,12]]};
+ view.sample=true;toast('Showing sample data. Add your own in Data.');
+}
+
+/* ---------- views ---------- */
+function item(o,i){
+ return `<div class="it" data-a="open" data-n="${esc(o.n)}"><div class="rk">${i+1}</div><div class="nm"><b>${esc(o.n)}${o.dec.pin?'<span class="tag">Pinned</span>':''}${o.stale?'<span class="tag st">Stale</span>':''}</b><small>${hrs(o.win)} · ${ago(o.idle)} · ${o.cl?o.cl+(o.cl===1?' chat':' chats'):''}${o.cl&&o.cx?', ':''}${o.cx?o.cx+' Codex':''}</small></div><div class="scv">${o.score}</div></div>`;
+}
+function home(R){
+ const d=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
+ let h=`<div class="sub">${esc(d)}</div><h1>Where your time goes</h1>`+(installEv?`<button class="p" data-install style="width:100%;margin-top:8px">Install Focus on this phone</button>`:'');
+ if(!R.all.length&&!R.uns.length)return h+`<div class="card hero"><h2>Add your Claude and Codex history</h2><p class="sub">Upload your exports once a week. Focus works out the hours per project, ranks them, and asks about the ones going stale.</p><div class="btns"><button class="p" data-a="tab" data-t="data">Add data</button><button class="s" data-a="sample">Try sample data</button></div></div>`;
+ const L=R.live,tot=L.reduce((a,o)=>a+o.win,0),top=[...L].sort((a,b)=>b.win-a.win)[0];
+ const nw=L.filter(o=>monthOf(o.first)===monthOf(today)),n=R.all.filter(o=>o.stale).length;
+ h+=`<div class="sub">Last ${st.win} days across Claude and Codex</div>`;
+ if(view.sample)h+=`<div class="card warn" data-a="tab" data-t="data" style="padding:10px 14px"><b>Sample data.</b> <span class="sub">Tap to add your own.</span></div>`;
+ if(top&&top.win>0)h+=`<div class="card hero click" data-a="open" data-n="${esc(top.n)}"><div class="lbl">Most of your time</div><div class="big">${esc(top.n)}</div><div class="sub">${hrs(top.win)} · ${Math.round(100*top.win/tot)}% of your time</div><div class="bar"><i style="width:${Math.round(100*top.win/tot)}%"></i></div></div>`;
+ else h+=`<div class="card hero"><div class="lbl">Most of your time</div><p class="sub">No work in the last ${st.win} days.</p></div>`;
+ h+=`<div class="grid3"><div class="card"><div class="lbl">Hours</div><div class="big">${(tot/60).toFixed(1)}</div></div><div class="card"><div class="lbl">New this month</div><div class="big">${nw.length}</div></div><div class="card ${n?'warn':'click'}" data-a="tab" data-t="review"><div class="lbl">To review</div><div class="big">${n}</div></div></div>`;
+ if(nw.length)h+=`<div class="card"><div class="lbl">Started this month</div><p>${nw.map(o=>esc(o.n)).join(', ')}</p></div>`;
+ const by=[...L].filter(o=>o.win>0).sort((a,b)=>b.win-a.win).slice(0,6),mx=by[0]?by[0].win:1;
+ if(by.length){h+=`<div class="card"><div class="lbl">Where the time went</div>`;by.forEach(o=>{h+=`<div class="tb click" data-a="open" data-n="${esc(o.n)}"><div class="row"><span>${esc(o.n)}</span><b>${hrs(o.win)}</b></div><div class="bar"><i style="width:${Math.max(2,Math.round(100*o.win/mx))}%"></i></div></div>`});h+='</div>'}
+ h+=`<div class="card"><div class="lbl">Top priorities</div>${L.slice(0,3).map(item).join('')}<button class="link" data-a="tab" data-t="list">See all ${L.length} projects ›</button></div>`;
+ if(R.uns.length)h+=`<div class="card warn" data-a="tab" data-t="data"><b>${R.uns.length} conversation${R.uns.length>1?'s':''} not matched to a project.</b> <span class="sub">Tap to sort them.</span></div>`;
+ return h;
+}
+function list(R){
+ let L=R.live;if(view.filter==='claude')L=L.filter(o=>o.cl);if(view.filter==='codex')L=L.filter(o=>o.cx);
+ let h=`<h1>Priority</h1><div class="sub">Score: time in the last ${st.win} days (up to 60) + how recent (up to 40) + pinned (15)</div><div class="seg">${['all','claude','codex'].map(f=>`<button class="${view.filter===f?'on':''}" data-a="filter" data-f="${f}">${f==='all'?'All':f==='claude'?'Claude':'Codex'}</button>`).join('')}</div>`;
+ return h+(L.length?`<div class="card">${L.map(item).join('')}</div>`:`<div class="empty">No projects here yet.</div>`);
+}
+function det(o){
+ const rec=[...o.list].sort((a,b)=>Math.max(...b.d.map(x=>x[0]))-Math.max(...a.d.map(x=>x[0]))).slice(0,6);
+ let h=`<button class="link" data-a="back">‹ Back</button><h1>${esc(o.n)}</h1><div class="sub">Started ${fmtD(o.first)} · ${o.cl} Claude chat${o.cl===1?'':'s'} · ${o.cx} Codex session${o.cx===1?'':'s'}</div>`;
+ if(o.dec.trash)h+=`<div class="card warn"><b>In the trash.</b> <span class="sub">It's hidden from your rankings.</span></div>`;
+ h+=`<div class="card hero"><div class="lbl">Priority score</div><div class="big">${o.score} <span class="sub">of 115</span></div><div class="bar"><i style="width:${Math.round(100*o.score/115)}%"></i></div></div>`;
+ h+=`<div class="card"><div class="row"><span>Time in last ${st.win} days</span><b>${o.pt} / 60</b></div><div class="row"><span>How recent</span><b>${o.pr} / 40</b></div><div class="row"><span>Pinned</span><b>${o.dec.pin?15:0} / 15</b></div></div>`;
+ h+=`<div class="card"><div class="row"><span>Hours, last ${st.win} days</span><b>${hrs(o.win)}</b></div><div class="row"><span>Hours, all time</span><b>${hrs(o.tot)}</b></div><div class="row"><span>Last worked on</span><b>${ago(o.idle)}</b></div></div>`;
+ h+=`<div class="card"><div class="lbl">Recent conversations</div>${rec.map(c=>`<div class="conv"><b>${esc(c.t)}</b><span class="sub">${c.s==='codex'?'Codex':'Claude'} · ${fmtD(Math.max(...c.d.map(x=>x[0])))}</span></div>`).join('')}</div>`;
+ h+=`<div class="btns">${o.dec.trash?`<button class="k" data-a="restore" data-n="${esc(o.n)}">Restore</button>`:`<button class="s" data-a="pin" data-n="${esc(o.n)}">${o.dec.pin?'Unpin':'Pin to top'}</button>${o.stale?`<button class="k" data-a="keep" data-n="${esc(o.n)}">Keep</button>`:''}<button class="t" data-a="trash" data-n="${esc(o.n)}">Trash</button>`}</div>`;
+ return h;
+}
+function rev(R){
+ const L=R.all.filter(o=>o.stale);
+ let h=`<h1>Keep or trash?</h1><div class="sub">Projects with no work for ${st.th}+ days and under ${st.mh} h in the last ${st.win} days</div>`;
+ if(!L.length)h+=`<div class="empty"><b style="font-size:20px;color:var(--ok)">All caught up</b><br>Nothing is going stale.</div>`;
+ L.sort((a,b)=>b.idle-a.idle).forEach(o=>{h+=`<div class="card"><h2>${esc(o.n)}</h2><div class="sub">Last worked on ${ago(o.idle)} · ${hrs(o.win)} in the last ${st.win} days · ${hrs(o.tot)} in total</div><p style="font-weight:700">Keep this project, or trash it?</p><div class="btns"><button class="k" data-a="keep" data-n="${esc(o.n)}">Keep</button><button class="s" data-a="snooze" data-n="${esc(o.n)}">In 7 days</button><button class="t" data-a="trash" data-n="${esc(o.n)}">Trash</button></div></div>`});
+ if(R.trash.length)h+=`<div class="card"><div class="lbl">Trash</div>${R.trash.map(o=>`<div class="row"><span>${esc(o.n)}</span><button class="link" data-a="restore" data-n="${esc(o.n)}">Restore</button></div>`).join('')}</div>`;
+ return h;
+}
+function data(R){
+ const nc=Object.values(convs).filter(c=>c.s==='claude').length,nx=Object.values(convs).filter(c=>c.s==='codex').length;
+ const names=[...new Set([...st.rules.map(r=>r.p).filter(Boolean),...R.all.map(o=>o.n)])].sort();
+ let h=`<h1>Your data</h1><div class="sub">Upload new exports any time. Repeated chats are updated, not doubled.</div>`;
+ if(view.prog)h+=`<div class="prog" role="status">${esc(view.prog)}</div>`;
+ h+=`<div class="card"><h2>Claude chats</h2><ol><li>On a computer, open claude.ai (or the Claude desktop app) → Settings → Privacy → Export data. The phone app can't do this.</li><li>Download the .zip from the email right away. The link lasts 24 hours and may work only once.</li><li>Choose that .zip here.</li></ol><div class="btns"><label class="filebtn">Choose Claude export<input type="file" accept=".zip,.json,application/zip,application/json" data-up="claude"></label></div></div>`;
+ h+=`<div class="card"><h2>Codex sessions</h2><p class="sub">Codex keeps a file per session in <code>.codex/sessions</code> inside your user folder. On your computer, choose that folder, or zip it and choose the .zip on your phone.</p><div class="btns"><label class="filebtn">Choose folder<input type="file" webkitdirectory multiple data-up="codex"></label><label class="filebtn s">Choose files or .zip<input type="file" multiple accept=".jsonl,.json,.zip" data-up="codex"></label></div></div>`;
+ h+=`<div class="card"><div class="row"><span>Claude chats</span><b>${nc}</b></div><div class="row"><span>Codex sessions</span><b>${nx}</b></div><div class="row"><span>Last upload</span><b>${st.last?new Date(st.last).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'Never'}</b></div><div class="row"><span>Saved</span><b>${view.sample?'Sample, not saved':store==='cloud'?'In your account':store==='local'?'On this device':'Not saved'}</b></div>${store==='cloud'?'<p class="note">Saved privately to your Claude account, so it opens on your phone too. Only short titles, the first message and the timings are kept.</p>':store==='local'?'<p class="note">Saved on this phone only. Uploads you make here stay here.</p>':''}</div>`;
+ if(R.uns.length){const U=view.allUns?R.uns:R.uns.slice(0,15);h+=`<div class="card"><h2>Not matched (${R.uns.length})</h2><p class="sub">Pick a project, or add keywords below so similar chats sort themselves.</p>${U.map(c=>`<div class="conv"><b>${esc(c.t)}</b><span class="sub">${c.s==='codex'?'Codex':'Claude'}</span><select data-ov="${esc(c.i)}"><option value="">Choose project…</option>${names.map(n=>`<option>${esc(n)}</option>`).join('')}</select></div>`).join('')}${R.uns.length>15&&!view.allUns?`<button class="link" data-a="allUns">Show all ${R.uns.length}</button>`:''}</div>`}
+ h+=`<div class="card"><h2>Projects and keywords</h2><p class="sub">A chat goes to the project whose keywords it mentions most. Otherwise it uses its Claude Project name or Codex folder.</p>${st.rules.map((r,i)=>`<div class="rule"><input type="text" value="${esc(r.p)}" data-r="${i}" data-f="p" aria-label="Project name" placeholder="Project name"><input type="text" value="${esc(r.k)}" data-r="${i}" data-f="k" aria-label="Keywords" placeholder="keywords, separated, by commas"><button data-a="delRule" data-i="${i}" aria-label="Remove ${esc(r.p)}">✕</button></div>`).join('')}<div class="btns"><button class="s" data-a="addRule">Add project</button><button class="p" data-a="saveRules">Save keywords</button></div></div>`;
+ h+=`<div class="card"><h2>Settings</h2>${slider('win','Count hours from the last',7,30,1,' days')}${slider('th','Ask about a project after no work for',7,60,1,' days')}${slider('mh','…and less time than',0,5,.5,' h')}</div>`;
+ h+=`<p class="note">Designed on the <a href="https://claude.ai/artifact/4efEa1dMsnS3Dm7F4JiJqE" style="color:var(--acc)">Focus whiteboard</a>.</p>`;
+ if(nc+nx)h+=`<div class="btns"><button class="t" data-a="wipe">${view.wipe?'Tap again to delete everything':'Delete all uploaded data'}</button></div>`;
+ return h;
+}
+function slider(k,l,a,b,s,u){return `<div style="margin-top:10px"><div class="row" style="border:0;padding:0"><span>${l}</span><b id="v-${k}">${st[k]}${u}</b></div><input type="range" min="${a}" max="${b}" step="${s}" value="${st[k]}" data-k="${k}" data-u="${u}" aria-label="${l}"></div>`}
+
+const ICON={home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',list:'<path d="M4 6h10M4 12h16M4 18h7"/>',review:'<path d="M5 21V4h11l-2 4 2 4H5"/>',data:'<path d="M12 15V4m0 0l-4 4m4-4l4 4M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/>'};
+function render(){
+ const R=compute();const sel=view.sel!=null?R.all.find(o=>o.n===view.sel):null;
+ if(view.sel!=null&&!sel)view.sel=null;
+ $m.innerHTML=sel?det(sel):view.tab==='list'?list(R):view.tab==='review'?rev(R):view.tab==='data'?data(R):home(R);
+ const n=R.all.filter(o=>o.stale).length;
+ document.getElementById('nav').innerHTML=[['home','Home'],['list','Priority'],['review','Review'],['data','Data']].map(([t,l])=>`<button class="${view.tab===t&&!sel?'on':''}" data-a="tab" data-t="${t}" aria-label="${l}"><svg viewBox="0 0 24 24">${ICON[t]}</svg>${l}${t==='review'&&n?`<span class="dot">${n}</span>`:''}</button>`).join('');
+ document.getElementById('toast').innerHTML=view.msg?`<div class="toast" role="status">${esc(view.msg)}</div>`:'';
+}
+function toast(m){view.msg=m;clearTimeout(tt);tt=setTimeout(()=>{view.msg='';document.getElementById('toast').innerHTML=''},3200);render()}
+function dec(n){return st.dec[n]||(st.dec[n]={})}
+
+document.addEventListener('click',e=>{
+ const el=e.target.closest('[data-a]');if(!el)return;
+ const a=el.dataset.a,n=el.dataset.n;let msg='';
+ if(a!=='wipe')view.wipe=false;
+ if(a==='tab'){view.tab=el.dataset.t;view.sel=null;scrollTo(0,0)}
+ else if(a==='open'){view.sel=n;scrollTo(0,0)}
+ else if(a==='back')view.sel=null;
+ else if(a==='filter')view.filter=el.dataset.f;
+ else if(a==='sample'){loadSample();return}
+ else if(a==='allUns')view.allUns=true;
+ else if(a==='pin'){const d=dec(n);d.pin=!d.pin;saveState();msg=d.pin?n+' pinned':n+' unpinned'}
+ else if(a==='keep'){const d=dec(n);d.kept=today;delete d.snooze;saveState();msg=n+' kept'}
+ else if(a==='snooze'){dec(n).snooze=today+7;saveState();msg='Will ask about '+n+' in 7 days'}
+ else if(a==='trash'){dec(n).trash=true;delete st.dec[n].pin;view.sel=null;saveState();msg=n+' moved to trash'}
+ else if(a==='restore'){const d=dec(n);delete d.trash;d.kept=today;saveState();msg=n+' restored'}
+ else if(a==='addRule')st.rules.push({p:'',k:''});
+ else if(a==='delRule')st.rules.splice(+el.dataset.i,1);
+ else if(a==='saveRules'){st.rules=st.rules.filter(r=>r.p.trim());saveState();msg='Keywords saved'}
+ else if(a==='wipe'){
+  if(!view.wipe){view.wipe=true}
+  else{view.wipe=false;convs={};st.ov={};view.sample=false;st.last=null;
+   if(store==='cloud')q(async()=>{for(let i=0;i<(st.chunks||0);i++)await db.doc(`data/users/${uid}/c${i}`).delete();st.chunks=0;await db.doc(`data/users/${uid}/state`).set(stateDoc())});
+   else if(store==='local')try{localStorage.removeItem('focus-convs')}catch(x){}
+   saveState();msg='All uploaded data deleted'}
+ }
+ if(msg)toast(msg);else render();
+});
+document.addEventListener('input',e=>{
+ const t=e.target;
+ if(t.dataset.k){st[t.dataset.k]=+t.value;document.getElementById('v-'+t.dataset.k).textContent=t.value+t.dataset.u}
+ if(t.dataset.r!=null)st.rules[+t.dataset.r][t.dataset.f]=t.value;
+});
+document.addEventListener('change',async e=>{
+ const t=e.target;
+ if(t.dataset.k){saveState();render()}
+ else if(t.dataset.ov){if(t.value){st.ov[t.dataset.ov]=t.value;saveState();toast('Moved to '+t.value)}}
+ else if(t.dataset.up){
+  const files=[...t.files],kind=t.dataset.up;if(!files.length)return;
+  if(view.sample){convs={};view.sample=false}
+  view.prog='Reading '+(files.length>1?files.length+' files':files[0].name)+'…';render();
+  try{
+   const n=kind==='claude'?await parseClaude(files):await parseCodex(files);
+   st.last=Date.now();const what=`${n} ${kind==='claude'?'Claude chat':'Codex session'}${n===1?'':'s'}`;
+   view.prog=`Added ${what}. Saving…`;render();
+   await saveAll();view.prog=store==='none'?`Added ${what}. This browser can't save, so it lasts until you close the page.`:`Added ${what}. Saved.`;
+  }catch(x){view.prog=(x&&x.message)||'Could not read that file.'}
+  render();
+ }
+});
+let installEv=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEv=e;render()});
+addEventListener('appinstalled',()=>{installEv=null;toast('Focus is on your home screen')});
+document.addEventListener('click',async e=>{if(!e.target.closest('[data-install]')||!installEv)return;installEv.prompt();try{await installEv.userChoice}catch(x){}installEv=null;render()});
+try{if('serviceWorker' in navigator&&!window.claude)navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}
+init();
+}
+</script></body></html>
